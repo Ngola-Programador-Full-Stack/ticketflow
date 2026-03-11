@@ -34,5 +34,11 @@ return [
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
     ],
+    'camunda' => [
+        'client_id'     => env('CAMUNDA_CLIENT_ID'),
+        'client_secret' => env('CAMUNDA_CLIENT_SECRET'),
+        'zeebe_address' => env('CAMUNDA_ZEEBE_ADDRESS'),
+        'oauth_url'     => env('CAMUNDA_OAUTH_URL'),
+    ],
 
 ];

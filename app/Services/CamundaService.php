@@ -13,12 +13,12 @@ class CamundaService
 
     public function __construct()
     {
-        $this->clientId     = env('CAMUNDA_CLIENT_ID');
-        $this->clientSecret = env('CAMUNDA_CLIENT_SECRET');
-        $this->zeebeAddress = env('CAMUNDA_ZEEBE_ADDRESS');
-        $this->oauthUrl     = env('CAMUNDA_OAUTH_URL');
+        $this->clientId     = config('services.camunda.client_id') ?? env('CAMUNDA_CLIENT_ID');
+        $this->clientSecret = config('services.camunda.client_secret') ?? env('CAMUNDA_CLIENT_SECRET');
+        $this->zeebeAddress = config('services.camunda.zeebe_address') ?? env('CAMUNDA_ZEEBE_ADDRESS');
+        $this->oauthUrl     = config('services.camunda.oauth_url') ?? env('CAMUNDA_OAUTH_URL');
     }
-
+    
     private function getToken(): string
     {
         return Cache::remember('camunda_token', 3500, function () {
@@ -36,8 +36,6 @@ class CamundaService
 
     public function iniciarProcesso(array $variaveis): array
     {
-        Cache::forget('camunda_token');
-        
         $token = $this->getToken();
 
         $response = Http::withoutVerifying()
