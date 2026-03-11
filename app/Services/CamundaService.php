@@ -18,7 +18,7 @@ class CamundaService
         $this->zeebeAddress = config('services.camunda.zeebe_address') ?? env('CAMUNDA_ZEEBE_ADDRESS');
         $this->oauthUrl     = config('services.camunda.oauth_url') ?? env('CAMUNDA_OAUTH_URL');
     }
-    
+
     private function getToken(): string
     {
         return Cache::remember('camunda_token', 3500, function () {
@@ -38,6 +38,9 @@ class CamundaService
     {
         $token = $this->getToken();
 
+        error_log('Camunda zeebe address: ' . $this->zeebeAddress);
+        error_log('Camunda token length: ' . strlen($token ?? ''));
+
         $response = Http::withoutVerifying()
             ->withToken($token)
             ->asJson()
@@ -47,13 +50,10 @@ class CamundaService
                 'variables'     => $variaveis,
             ]);
 
-        \Log::info('Camunda response', [
-            'status' => $response->status(),
-            'body'   => $response->json(),
-        ]);
+        error_log('Camunda status: ' . $response->status());
+        error_log('Camunda body: ' . $response->body());
 
         if ($response->failed()) {
-            \Log::error('Camunda error', ['body' => $response->body()]);
             return [];
         }
 
