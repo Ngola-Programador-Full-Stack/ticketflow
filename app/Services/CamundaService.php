@@ -42,9 +42,20 @@ class CamundaService
             ->withToken($token)
             ->asJson()
             ->post($this->zeebeAddress . '/v2/process-instances', [
-                'processDefinitionKey' => '2251799813715766',
-                'variables'            => $variaveis,
+                'bpmnProcessId' => 'Process_0dv1u4g',
+                'version'       => -1,
+                'variables'     => $variaveis,
             ]);
+
+        \Log::info('Camunda response', [
+            'status' => $response->status(),
+            'body'   => $response->json(),
+        ]);
+
+        if ($response->failed()) {
+            \Log::error('Camunda error', ['body' => $response->body()]);
+            return [];
+        }
 
         return $response->json();
     }
