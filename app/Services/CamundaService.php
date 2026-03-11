@@ -36,6 +36,8 @@ class CamundaService
 
     public function iniciarProcesso(array $variaveis): array
     {
+        Cache::forget('camunda_token');
+        
         $token = $this->getToken();
 
         $response = Http::withoutVerifying()
