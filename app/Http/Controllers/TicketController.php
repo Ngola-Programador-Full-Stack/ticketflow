@@ -36,12 +36,19 @@ class TicketController extends Controller
         $ticketId = 'TK-' . strtoupper(uniqid());
 
         // Iniciar processo no Camunda
-        $resultado = $this->camunda->iniciarProcesso([
-            'ticketId'  => $ticketId,
-            'titulo'    => $request->titulo,
-            'descricao' => $request->descricao,
-            'simples'   => $request->prioridade === 'simples',
-        ]);
+        try {
+            $resultado = $this->camunda->iniciarProcesso([
+                'ticketId'  => $ticketId,
+                'titulo'    => $request->titulo,
+                'descricao' => $request->descricao,
+                'simples'   => $request->prioridade === 'simples',
+            ]);
+            error_log('Camunda resultado: ' . json_encode($resultado));
+        } catch (\Exception $e) {
+            error_log('Camunda EXCEPTION: ' . $e->getMessage());
+            error_log('Camunda TRACE: ' . $e->getTraceAsString());
+            $resultado = [];
+        }
 
         // Guardar na base de dados
         Ticket::create([
@@ -51,8 +58,8 @@ class TicketController extends Controller
             'prioridade'          => $request->prioridade,
             'status'              => 'em_processo',
             'camunda_instance_id' => $resultado['processInstanceKey']
-                      ?? $resultado['key']
-                      ?? null,
+                    ?? $resultado['key']
+                    ?? null,
         ]);
 
         return redirect()->route('tickets.index')
