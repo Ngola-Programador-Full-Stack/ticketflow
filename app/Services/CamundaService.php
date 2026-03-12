@@ -19,7 +19,7 @@ class CamundaService
         $this->oauthUrl     = config('services.camunda.oauth_url') ?? env('CAMUNDA_OAUTH_URL');
     }
 
-    private function getToken(): string
+    private function getToken(): ?string
     {
         return Cache::remember('camunda_token', 3500, function () {
             $response = Http::withoutVerifying()
@@ -37,6 +37,11 @@ class CamundaService
     public function iniciarProcesso(array $variaveis): array
     {
         $token = $this->getToken();
+
+        if (!$token) {
+            error_log('Camunda: token nulo, credenciais não configuradas.');
+            return [];
+        }
 
         error_log('Camunda zeebe address: ' . $this->zeebeAddress);
         error_log('Camunda token length: ' . strlen($token ?? ''));
